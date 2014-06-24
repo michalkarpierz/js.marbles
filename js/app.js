@@ -46,8 +46,16 @@ App.GetMarbleTypeHtmlById = function(id) {
     }
 };
 
-App.RefreshGameField = function() {
-    for(var fieldId in App.marbles)
+function sleep(miliseconds) {
+           var currentTime = new Date().getTime();
+
+           while (currentTime + miliseconds >= new Date().getTime()) {
+           }
+       }
+
+App.RefreshGameField = function(addedMarblesArr) { 
+    var counter = 0;
+    for(var fieldId in App.marbles) 
         $("#"+fieldId).html(App.GetMarbleTypeHtmlById(App.marbles[fieldId])); 
 };
 
@@ -58,6 +66,7 @@ App.ClearGameField = function() {
 
 App.PutThreeMarblesOnGameField = function() {
     var x = "";
+    var addedMarblesArr = [];
     App.newMarbles = [];
     for(var i=0; i<3;i++)
     {
@@ -65,8 +74,9 @@ App.PutThreeMarblesOnGameField = function() {
             , marbleType = App.RandomMarbleType();
         App.marbles[filedId] = marbleType.id;
         App.newMarbles.push(filedId);
+        addedMarblesArr.push(filedId);
     }
-    App.RefreshGameField();
+    App.RefreshGameField(addedMarblesArr);
 };
 
 App.DeleteMarbleFromField = function(fieldId) {
@@ -341,7 +351,7 @@ App.PutThreeMarblesOnGameField();
 $(".field").click(function() {
     var isFieldFree = App.IsFiedFree(this.id);
     if(App.selectedField == null)
-    {
+    { 
         if(isFieldFree == false)
         {
             App.selectedField = this.id;
@@ -354,12 +364,19 @@ $(".field").click(function() {
         App.selectedField = null;
     }
     else
-    {
+    { 
         var marbleTypeFrom = App.marbles[App.selectedField]
             , targetFieldId = parseInt(this.id);
 
+        if(!isFieldFree)
+        {
+            $("#"+App.selectedField+" .marble").css({"border":"none"});
+            App.selectedField = this.id;
+            $("#"+App.selectedField+" .marble").css({"border":"2px solid"});
+        }
+
         if(isFieldFree && App.IsMarbleMovePossible(App.selectedField,this.id))
-        {   
+        {
             App.DeleteMarbleFromField(App.selectedField);
             App.marbles[targetFieldId] = marbleTypeFrom;
             App.emptyFields.splice(App.GetKeyFromEmptyFieldsArray(targetFieldId),1);
